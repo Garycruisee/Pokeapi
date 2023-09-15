@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import PokemonThumbnails from "./components/PokemonThumbnails";
 
 const App = () => {
   const [allPokemons, setAllPokemons] = useState([]);
@@ -46,8 +47,14 @@ const App = () => {
       <h1>Pokemon</h1>
       <div className="pokemon-container">
         <div className="all-container">
-          {allPokemons.map((pokemon) => (
-            <li>{pokemon.name}</li>
+          {allPokemons.map((pokemonStats, index) => (
+            <PokemonThumbnails
+              key={index}
+              id={pokemonStats.id}
+              image={pokemonStats.sprites.other.dream_world.front_default}
+              name={pokemonStats.name}
+              type={pokemonStats.types[0].type.name}
+            />
           ))}
         </div>
         <button className="load-more">Load more</button>
