@@ -45,7 +45,11 @@ const App = () => {
     <div className="app-container">
       <h1>Pokemon</h1>
       <div className="pokemon-container">
-        <div className="all-container"></div>
+        <div className="all-container">
+          {allPokemons.map((pokemon) => (
+            <li>{pokemon.name}</li>
+          ))}
+        </div>
         <button className="load-more">Load more</button>
       </div>
     </div>
