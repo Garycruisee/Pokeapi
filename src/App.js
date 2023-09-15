@@ -25,6 +25,7 @@ const App = () => {
               const data = res.data;
 
               setAllPokemons((currentList) => [...currentList, data]);
+              await allPokemons.sort((a, b) => a.id - b.id);
             } catch (error) {
               console.error("Error fetching Pokemon details:", error);
             }
@@ -44,7 +45,7 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <h1>Pokemon</h1>
+      <h1>Pokemon!</h1>
       <div className="pokemon-container">
         <div className="all-container">
           {allPokemons.map((pokemonStats, index) => (
