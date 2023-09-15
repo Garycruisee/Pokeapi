@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PokemonThumbnails from "./components/PokemonThumbnails";
+import PokemonSearchBar from "./components/PokemonSearchBar";
 
 const App = () => {
   const [allPokemons, setAllPokemons] = useState([]);
+  const [filterValue, setFilterValue] = useState("");
   const [loadMore, setLoadMore] = useState(
     "https://pokeapi.co/api/v2/pokemon?limit=20"
   );
@@ -15,21 +17,27 @@ const App = () => {
 
       setLoadMore(data.next);
 
-      function createPokemonObject(results) {
+      async function createPokemonObject(results) {
         if (results) {
-          results.forEach(async (pokemon) => {
+          const pokemonDataArray = [];
+          for (const pokemon of results) {
             try {
               const res = await axios.get(
                 `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
               );
               const data = res.data;
-
-              setAllPokemons((currentList) => [...currentList, data]);
-              await allPokemons.sort((a, b) => a.id - b.id);
+              pokemonDataArray.push(data);
             } catch (error) {
               console.error("Error fetching Pokemon details:", error);
             }
-          });
+          }
+
+          pokemonDataArray.sort((a, b) => a.id - b.id);
+
+          setAllPokemons((currentList) => [
+            ...currentList,
+            ...pokemonDataArray,
+          ]);
         }
       }
 
@@ -40,15 +48,28 @@ const App = () => {
   };
 
   useEffect(() => {
+    allPokemons.sort((a, b) => a.id - b.id);
+  }, [allPokemons]);
+
+  const handleLoadMoreClick = () => {
     getAllPokemons();
-  }, []);
+  };
+
+  const handleFilterChange = (value) => {
+    setFilterValue(value);
+  };
+
+  const filteredPokemons = allPokemons.filter((pokemon) =>
+    pokemon.name.toLowerCase().includes(filterValue.toLowerCase())
+  );
 
   return (
     <div className="app-container">
       <h1>Pokemon!</h1>
+      <PokemonSearchBar setFilterValue={handleFilterChange} />
       <div className="pokemon-container">
         <div className="all-container">
-          {allPokemons.map((pokemonStats, index) => (
+          {filteredPokemons.map((pokemonStats, index) => (
             <PokemonThumbnails
               key={index}
               id={pokemonStats.id}
@@ -58,7 +79,7 @@ const App = () => {
             />
           ))}
         </div>
-        <button className="load-more" onClick={() => getAllPokemons()}>
+        <button className="load-more" onClick={handleLoadMoreClick}>
           Load more
         </button>
       </div>
