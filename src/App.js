@@ -1,20 +1,44 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
-function App() {
+const App = () => {
   const [allPokemons, setAllPokemons] = useState([]);
   const [loadMore, setLoadMore] = useState(
     "https://pokeapi.co/api/v2/pokemon?limit=20"
   );
 
-  const getAllPokemon = async () => {
-    const res = await fetch(loadMore);
-    const data = await res.json();
+  const getAllPokemons = async () => {
+    try {
+      const res = await axios.get(loadMore);
+      const data = await res.data;
 
-    console.log(data);
+      setLoadMore(data.next);
+
+      function createPokemonObject(results) {
+        if (results) {
+          results.forEach(async (pokemon) => {
+            try {
+              const res = await axios.get(
+                `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
+              );
+              const data = res.data;
+
+              setAllPokemons((currentList) => [...currentList, data]);
+            } catch (error) {
+              console.error("Error fetching Pokemon details:", error);
+            }
+          });
+        }
+      }
+
+      createPokemonObject(data.results);
+    } catch (error) {
+      console.error("Error fetching Pokemon list:", error);
+    }
   };
 
   useEffect(() => {
-    getAllPokemon();
+    getAllPokemons();
   }, []);
 
   return (
@@ -26,6 +50,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;
